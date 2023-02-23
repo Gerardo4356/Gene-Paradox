@@ -1,0 +1,232 @@
+<html>
+
+<head>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+    <link href="https://bootswatch.com/5/lux/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+    
+    <title>GeneParadox</title>
+
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <!-- <a class="navbar-brand" href="#">GeneParadox</a> -->
+                <img src="https://static.wixstatic.com/media/237ba5_82baec0de7dc4ced85f0655c6efa4f01~mv2.png/v1/fill/w_116,h_75,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/237ba5_82baec0de7dc4ced85f0655c6efa4f01~mv2.png" alt="GeneParadox" border="0" width="116" height="75" </img>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01"
+                    aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarColor01">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/">Home
+                                <span class="visually-hidden">(current)</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Features</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Pricing</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">About</a>
+                        </li>
+                    </ul>
+                    <form class="d-flex">
+                        <input class="form-control me-sm-2" type="search" placeholder="Search">
+                        <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+                    </form>
+                </div>
+        </div>
+    </nav>
+</head>
+
+
+<body>
+
+    <div class="container mt-4">
+
+            <center>
+                <h2>Service 1/2</h2>
+                <h5>By GeneParadox</h5>
+            </center>
+
+            <form action="/genbank_search" method="post">
+                    <h4>GenBank</h4>
+                    <label for="button_genbank_search" class="form-label mt-4">Enter gene and organism </label>
+                    <div class="input-group mb-3">
+                        <input type="text" 
+                        {% if not genbank_invalid %}class="form-control"{% else %}class="form-control is-invalid"{% endif %}
+                        name="genbank_search" placeholder="CSN3 Ovis Aries">
+                        <button class="btn btn-primary" type="submit" id="button_genbank_search">Search</button>
+                        {% if genbank_invalid %}
+                        <div class="invalid-feedback">Search failed! Try again</div>
+                        {% endif %}                    </div>
+            </form>
+
+            <div id="genbank_results" style="display: {% if show %}{{ show }}{% else%}{{ 'none' }}{% endif %};">
+                <br><hr>
+                <h4>GenBank Result</h4>
+                {% for i in range(titles|length) %}
+                <a href="/genbank_details/{{ ids[i] }}" class="btn btn-primary" role="button" aria-pressed="true">
+                    <p class="mb-0">{{ titles[i] }}</p>
+                </a>
+                <p class="mb-0">    {{ lengths[i] }}</p>
+                <p class="mb-0">    {{ links[i] }}</p>
+                <p> {{ ids[i] }}</p>
+                {% endfor %}
+            </div>
+
+
+                <form action="/blastx" method="post">
+                    <br><hr>
+                    <h4>BlastX</h4>
+
+                    <div class="form-group">
+                        <label for="fasta_blastx" class="form-label mt-4">Enter FASTA Sequence for BlastX</label>                       
+                        <textarea class="form-control" name="fasta_blastx" rows="3">{% if gene %}{{ gene }}{% endif %}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-form-label" for="organism_blastx">Enter organism to filter</label>
+                        <input type="text" class="form-control" placeholder="Ovis Aries" name="organism_blastx">
+                        <small class="form-text text-muted">Leave blank to search all organisms</small>
+                        <center>
+                            <button class="btn btn-outline-info mt-2" type="submit" id="blastx">BlastX</button>
+                        </center>
+                    </div>
+                </form>
+
+                    {% if blastx %}
+                    <br><hr>
+                    <h4>BlastX Results</h4>
+                    <div id="BlasX_results">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Title</th>
+                                    <th scope="col">Lenght</th>
+                                    <th scope="col">E Value</th>
+                                    <th scope="col">Identity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in blastx %}
+                                <tr>
+                                    <th scope="row">{{ loop.index-1 }}</th>
+
+                                    <td>{{ row.0 }}</td>
+                                    <td>{{ row.1 }}</td>
+                                    <td>{{ row.2 }}</td>
+                                    <td>{{ row.3 }}</td>
+                                    <td>{{ row.4 }}</td>
+                                    <td>{{ row.5 }}</td>
+                                </tr>
+                                {% endfor %}
+
+                        </table>
+
+                    </div>
+                    {% endif %}
+                    
+
+
+                    <form action="/interpro" method="post">
+                        
+                    <br><hr>
+                    <h4>Interpro</h4>
+                    <div id="Interpro"> 
+                        <p>The next ids are the first ones that have been found in the BlastX results. They will be used to run Interpro.</p><br>
+                        <ul class="list-group list-group-flush" id="interpro-query-list">
+                        {% for row in blastx %}
+                            <li class="list-group-item" value="{{ row.0 }}">
+                                <input type="checkbox" class="form-check-input" checked name="item">
+                                {{ row.0 }}
+                            </li>
+                        {% endfor %}
+                        {% comment %} Test {% endcomment %}
+                    </ul>                        
+                        <center>
+                            <button class="btn btn-outline-info mt-2" type="submit" id="interpro">Run interpro</button>
+                        </center>
+                    </div>
+                    
+                    </form>
+
+
+
+                    <br><hr>
+                    <h4>Interpro Results</h4>
+                    <div id="interpro_results">
+                    
+                        <!--bullet list-->
+                        <ul>
+                            <li>
+                                <a href="https://www.ebi.ac.uk/interpro/result/InterProScan/iprscan5-R20230130-181437-0845-15041554-p2m/" target="_blank">https://www.ebi.ac.uk/interpro/result/InterProScan/iprscan5-R20230130-181437-0845-15041554-p2m/</a>
+                            </li>
+                            <li>
+                                <a href="https://www.ebi.ac.uk/interpro/result/InterProScan/iprscan5-R20230130-181437-0845-15041554-p2m/" target="_blank">https://www.ebi.ac.uk/interpro/result/InterProScan/iprscan5-R20230130-181437-0845-15041554-p2m/</a>
+                            </li>
+                            <li>
+                                <a href="https://www.ebi.ac.uk/interpro/result/InterProScan/iprscan5-R20230130-181437-0845-15041554-p2m/" target="_blank">https://www.ebi.ac.uk/interpro/result/InterProScan/iprscan5-R20230130-181437-0845-15041554-p2m/</a>
+                            </li>
+                        </ul>
+                    </div>
+                    
+                    
+                    
+                    <br><hr>
+                    <h4>Functional domain</h4>
+                    Begin:
+                    <input class="form-control form-control-sm" type="text" placeholder="0" id="begin">
+                    End:
+                    <input class="form-control form-control-sm" type="text" placeholder="100" id="end">
+                    <center>
+                        <button class="btn btn-primary mt-2" type="button" id="cut">Cut Sequence</button>
+                    </center> 
+
+
+
+
+                    <br><hr>
+                    <h4>BlastP</h4>
+
+                    <div class="form-group">
+                        <label for="fasta_blastp" class="form-label mt-4">Enter FASTA Sequence for BlastP</label>                       
+                        <textarea class="form-control" id="fasta_blastp" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-form-label" for="organism_blastp">Enter organism to filter</label>
+                        <input type="text" class="form-control" placeholder="Ovis Aries" id="organism_blastp">
+                        <small class="form-text text-muted">Leave blank to search all organisms</small>
+                        <center>
+                            <button class="btn btn-outline-info mt-2" type="button" id="blastp">BlastP</button>
+                        </center>
+                    </div>
+
+
+
+                    <br><br><br><br><br>
+
+
+
+
+
+    </div>
+
+
+
+
+
+
+
+
+</body>
+
+</html>
